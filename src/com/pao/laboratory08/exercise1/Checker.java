@@ -1,5 +1,4 @@
 package com.pao.laboratory08.exercise1;
-
 import com.pao.test.IOTest;
 
 public class Checker {
