@@ -1,18 +1,29 @@
 package com.pao.project.elearning;
+
 import com.pao.project.elearning.exception.CursNegasitException;
 import com.pao.project.elearning.exception.UserNegasitException;
 import com.pao.project.elearning.model.CodCurs;
 import com.pao.project.elearning.model.Curs;
 import com.pao.project.elearning.model.Cursant;
+import com.pao.project.elearning.model.Inscriere;
 import com.pao.project.elearning.model.Instructor;
 import com.pao.project.elearning.model.Intrebare;
 import com.pao.project.elearning.model.Lectie;
 import com.pao.project.elearning.model.Quiz;
 import com.pao.project.elearning.model.RezultatQuiz;
+import com.pao.project.elearning.repository.CursRepository;
+import com.pao.project.elearning.repository.CursantRepository;
+import com.pao.project.elearning.repository.InscriereRepository;
+import com.pao.project.elearning.repository.InstructorRepository;
+import com.pao.project.elearning.repository.QuizRepository;
+import com.pao.project.elearning.service.AuditService;
 import com.pao.project.elearning.service.CursService;
+import com.pao.project.elearning.service.ElearningJdbcService;
 import com.pao.project.elearning.service.QuizService;
 import com.pao.project.elearning.service.UserService;
-
+import com.pao.project.elearning.util.DatabaseConnection;
+import com.pao.project.elearning.util.SchemaInitializer;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -23,6 +34,7 @@ public class Main {
     private static final UserService userService = UserService.getInstance();
     private static final CursService cursService = CursService.getInstance();
     private static final QuizService quizService = QuizService.getInstance();
+    private static final AuditService auditService = AuditService.getInstance();
 
     private static int nextCursantId = 4;
     private static int nextLectieId = 3;
@@ -40,57 +52,79 @@ public class Main {
             switch (optiune) {
                 case 1:
                     afiseazaCursanti();
+                    auditService.log("afiseaza_cursanti");
                     break;
                 case 2:
                     afiseazaInstructori();
+                    auditService.log("afiseaza_instructori");
                     break;
                 case 3:
                     afiseazaCursuri();
+                    auditService.log("afiseaza_cursuri");
                     break;
                 case 4:
                     afiseazaCursuriSortate();
+                    auditService.log("afiseaza_cursuri_sortate");
                     break;
                 case 5:
                     cautaCursDupaCod();
+                    auditService.log("cauta_curs_dupa_cod");
                     break;
                 case 6:
                     inscrieCursantLaCurs();
+                    auditService.log("inscrie_cursant_la_curs");
                     break;
                 case 7:
                     afiseazaCursantiInscrisiLaCurs();
+                    auditService.log("afiseaza_cursanti_inscrisi_la_curs");
                     break;
                 case 8:
                     afiseazaLectiiCurs();
+                    auditService.log("afiseaza_lectii_curs");
                     break;
                 case 9:
                     afiseazaQuizuriCurs();
+                    auditService.log("afiseaza_quizuri_curs");
                     break;
                 case 10:
                     afiseazaRezultateCursant();
+                    auditService.log("afiseaza_rezultate_cursant");
                     break;
                 case 11:
                     afiseazaClasamentQuiz();
+                    auditService.log("afiseaza_clasament_quiz");
                     break;
                 case 12:
                     adaugaCursant();
+                    auditService.log("adauga_cursant");
                     break;
                 case 13:
                     adaugaCurs();
+                    auditService.log("adauga_curs");
                     break;
                 case 14:
                     adaugaLectieLaCurs();
+                    auditService.log("adauga_lectie_la_curs");
                     break;
                 case 15:
                     adaugaRezultatQuiz();
+                    auditService.log("adauga_rezultat_quiz");
                     break;
                 case 16:
                     stergeCursant();
+                    auditService.log("sterge_cursant");
                     break;
                 case 17:
                     stergeCurs();
+                    auditService.log("sterge_curs");
                     break;
                 case 18:
                     stergeInstructor();
+                    auditService.log("sterge_instructor");
+                    break;
+                case 19:
+                    ruleazaDemoEtapa2Jdbc();
+                    auditService.log("ruleaza_demo_etapa2_jdbc");
                     break;
                 case 0:
                     System.out.println("Program inchis.");
@@ -170,6 +204,7 @@ public class Main {
         System.out.println("16. Sterge cursant dupa id");
         System.out.println("17. Sterge curs dupa cod");
         System.out.println("18. Sterge instructor dupa id");
+        System.out.println("19. Ruleaza demo Etapa II JDBC");
         System.out.println("0. Iesire");
     }
 
@@ -430,6 +465,139 @@ public class Main {
             userService.stergeInstructorDupaId(idInstructor);
             System.out.println("Instructor sters cu succes.");
         } catch (UserNegasitException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void ruleazaDemoEtapa2Jdbc() {
+        try {
+            Connection connection = DatabaseConnection.getInstance().getConnection();
+            SchemaInitializer.init(connection);
+
+            InstructorRepository instructorRepository = new InstructorRepository();
+            CursantRepository cursantRepository = new CursantRepository();
+            CursRepository cursRepository = new CursRepository();
+            InscriereRepository inscriereRepository = new InscriereRepository();
+            QuizRepository quizRepository = new QuizRepository();
+            ElearningJdbcService jdbcService = ElearningJdbcService.getInstance();
+
+            System.out.println("=== Functionalitati JDBC ===");
+            System.out.println();
+
+            Instructor instructor1 = new Instructor(10, "Prof. Andrei Matei", "andrei@email.com", "andrei.m", "Programare Java");
+            Instructor instructor2 = new Instructor(11, "Prof. Ioana Radu", "ioana@email.com", "ioana.r", "Baze de date");
+
+            instructorRepository.save(instructor1);
+            instructorRepository.save(instructor2);
+            auditService.log("jdbc_adauga_instructori");
+
+            Cursant cursant1 = new Cursant(1, "Ana Popescu", "ana@email.com", "ana.p", 2);
+            Cursant cursant2 = new Cursant(2, "Mihai Ionescu", "mihai@email.com", "mihai.i", 1);
+            Cursant cursant3 = new Cursant(3, "Elena Stan", "elena@email.com", "elena.s", 3);
+
+            cursantRepository.save(cursant1);
+            cursantRepository.save(cursant2);
+            cursantRepository.save(cursant3);
+            auditService.log("jdbc_adauga_cursanti");
+
+            Curs curs1 = new Curs(new CodCurs("JAVA101"), "Introducere in Java", instructor1, 30);
+            Curs curs2 = new Curs(new CodCurs("DB101"), "Baze de date", instructor2, 25);
+            Curs curs3 = new Curs(new CodCurs("OOP101"), "Programare orientata pe obiecte", instructor1, 35);
+
+            cursRepository.save(curs1);
+            cursRepository.save(curs2);
+            cursRepository.save(curs3);
+            auditService.log("jdbc_adauga_cursuri");
+
+            Quiz quiz1 = new Quiz(1, "Quiz Java basic");
+            Quiz quiz2 = new Quiz(2, "Quiz SQL basic");
+
+            quizRepository.saveForCourse(quiz1, "JAVA101");
+            quizRepository.saveForCourse(quiz2, "DB101");
+            auditService.log("jdbc_adauga_quizuri");
+
+            Inscriere inscriere1 = new Inscriere(1, cursant1, curs1, "2026-05-26");
+            Inscriere inscriere2 = new Inscriere(2, cursant2, curs1, "2026-05-26");
+            Inscriere inscriere3 = new Inscriere(3, cursant3, curs2, "2026-05-26");
+
+            inscriereRepository.save(inscriere1);
+            inscriereRepository.save(inscriere2);
+            inscriereRepository.save(inscriere3);
+            auditService.log("jdbc_adauga_inscrieri");
+
+            System.out.println("Cursanti din baza de date:");
+            for (Cursant cursant : cursantRepository.findAll()) {
+                System.out.println(cursant);
+            }
+            System.out.println();
+            auditService.log("jdbc_listeaza_cursanti");
+
+            System.out.println("Cursuri din baza de date:");
+            for (Curs curs : cursRepository.findAll()) {
+                System.out.println(curs);
+            }
+            System.out.println();
+            auditService.log("jdbc_listeaza_cursuri");
+
+            System.out.println("Cautare curs dupa cod:");
+            System.out.println(cursRepository.findById("JAVA101"));
+            System.out.println();
+            auditService.log("jdbc_cauta_curs_dupa_cod");
+
+            Cursant cursantActualizat = new Cursant(1, "Ana Popescu", "ana.nou@email.com", "ana.p", 2);
+            cursantRepository.update(cursantActualizat);
+
+            System.out.println("Cursant actualizat:");
+            System.out.println(cursantRepository.findById(1));
+            System.out.println();
+            auditService.log("jdbc_actualizeaza_cursant");
+
+            jdbcService.adaugaRezultatCuTranzactie(1, 1, 95);
+            jdbcService.adaugaRezultatCuTranzactie(2, 1, 80);
+            jdbcService.adaugaRezultatCuTranzactie(3, 2, 90);
+
+            System.out.println("Rezultate quiz salvate in baza de date.");
+            System.out.println();
+            auditService.log("jdbc_adauga_rezultate_tranzactie");
+
+            System.out.println("Cursuri si instructori:");
+            for (String line : jdbcService.getCursuriCuInstructori()) {
+                System.out.println(line);
+            }
+            System.out.println();
+            auditService.log("jdbc_raport_cursuri_cu_instructori");
+
+            System.out.println("Quizuri si cursuri:");
+            for (String line : jdbcService.getQuizuriCuCursuri()) {
+                System.out.println(line);
+            }
+            System.out.println();
+            auditService.log("jdbc_raport_quizuri_cu_cursuri");
+
+            System.out.println("Rezultate quiz:");
+            for (String line : jdbcService.getRezultateCuDetalii()) {
+                System.out.println(line);
+            }
+            System.out.println();
+            auditService.log("jdbc_raport_rezultate_cu_detalii");
+
+            System.out.println("Medie scor pe curs:");
+            for (String line : jdbcService.getMedieScorPeCurs()) {
+                System.out.println(line);
+            }
+            System.out.println();
+            auditService.log("jdbc_raport_medie_scor_pe_curs");
+
+            inscriereRepository.delete(2);
+            auditService.log("jdbc_sterge_inscriere");
+
+            System.out.println("Inscrierea cu id 2 a fost stearsa.");
+            System.out.println();
+
+            System.out.println("Verifica fisierul audit.csv pentru actiunile salvate.");
+
+            DatabaseConnection.getInstance().close();
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
