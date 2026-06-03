@@ -1,6 +1,70 @@
 package com.pao.laboratory14.exercise2.model;
 
 public class Eveniment {
-    // TODO implement
-}
+    private int id;
+    private String nume;
+    private String data;
+    private int capacitate;
+    private String tip;
 
+    public Eveniment(String nume, String data, int capacitate, String tip) {
+        this.nume = nume;
+        this.data = data;
+        this.capacitate = capacitate;
+        this.tip = tip;
+    }
+
+    public Eveniment(int id, String nume, String data, int capacitate, String tip) {
+        this.id = id;
+        this.nume = nume;
+        this.data = data;
+        this.capacitate = capacitate;
+        this.tip = tip;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNume() {
+        return nume;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public int getCapacitate() {
+        return capacitate;
+    }
+
+    public String getTip() {
+        return tip;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setNume(String nume) {
+        this.nume = nume;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public void setCapacitate(int capacitate) {
+        this.capacitate = capacitate;
+    }
+
+    public void setTip(String tip) {
+        this.tip = tip;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + id + "] " + nume + " | " + data
+                + " | cap=" + capacitate + " | " + tip;
+    }
+}
